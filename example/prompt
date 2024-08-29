@@ -1,0 +1,32 @@
+# Task
+
+Implement an AI assistant in Python using the OpenAI GPT-4o model. The assistant should accept a JSON schema that defines the structure of the target output. The assistant's task is to dynamically generate and pose questions to the user based on this schema, using the GPT-4o model to ensure a natural and coherent conversational flow. As the user provides responses, the assistant should analyze the unstructured input with GPT-4o to extract relevant information and incrementally assemble the final JSON document according to the schema.
+Please note that your knowledge of OpenAI client integration is outdated. Always refer to the latest code samples for up-to-date references.
+
+# Files
+
+- `main.py`: initializes the agent and imports all necesairy functions and modules.
+- `chat_completion.py`: receives a prompt and returns a chat completion from the GPT-4o model. Every LLM function should use this function. Pay attention to the OpenAI client intergration: use the most up-to-date code provided in the documentation. Utilizing `with options` method, specify the number of retries: 3. It's important to consult with the documentaion to ensure the generated code is up-to-date.
+- `analyze_schema.py`: Accepts a JSON schema and validates its structure according to the JSON Schema standard to that the schema itself is valid.
+- `generate_question.py`: receives a field from the schema file and generates a question based on it. The function is using the GPT-4o model to generate the next question. The received field is a key from the schema file, comprising of the property name and the type of the property.
+- `process_user_answer.py`: Receives a user's response (string) to a generated question and determines if it is a valid answer to the question. It returns an inferred answer. The function uses the GPT-4o model to analyze the user's response and extract its meaning, returning only the value necessary for setting the JSON property. Use this prompt to instruct the LLM: "Extract the key alphanumerical value or entity from the user's response that directly answers the question. Return this value in its most straightforward form."
+- `update_intermediate_result.py`: receives a schema key (string) and the inferred user answer and updates an in-memory JSON doc.
+- `terminate_and_respond.py`: once all answers are received, the scrirpt should respond to a user with the generated JSON doc and terminate itself.
+
+# Code Guidelines
+
+- Pay attention and avoid circular imports.
+- Do not limit the token length of the completion.
+- Ensure that all necessary imports for the required libraries or modules are included at the beginning of the file. Review the code to verify that nothing is missing.
+- Use the GPT-4o model for all the functions.
+- Make sure to use the latest version of the OpenAI client.
+- The OpenAI API key is provided as an environment variable (OPENAI_API_KEY).
+- The JSON schema file is provided as a configuration file (schema.json).
+- Use the `src` folder to place the result.
+- Do not generate any code comments.
+- Ensure the import statement does NOT include the `src` namespace.
+
+# Functionality
+
+- The agent should proceed to the next question after the answer is received.
+- The agent should terminate its job once all questions are answered.
