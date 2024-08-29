@@ -8,6 +8,7 @@ from typing import Callable, Optional, TypeVar
 
 # from gpt_engineer.core.default.git_version_manager import GitVersionManager
 from gpt_engineer.core.ai import AI
+from langchain.schema.document import Document
 from gpt_engineer.core.base_agent import BaseAgent
 from gpt_engineer.core.base_execution_env import BaseExecutionEnv
 from gpt_engineer.core.base_memory import BaseMemory
@@ -24,7 +25,13 @@ from gpt_engineer.core.files_dict import FilesDict
 from gpt_engineer.core.preprompts_holder import PrepromptsHolder
 from gpt_engineer.core.prompt import Prompt
 
-CodeGenType = TypeVar("CodeGenType", bound=Callable[[AI, str, BaseMemory], FilesDict])
+CodeGenType = TypeVar(
+    "CodeGenType",
+    bound=Callable[
+        [AI, str, BaseMemory, list[Document],
+        FilesDict,
+    ],
+)
 CodeProcessor = TypeVar(
     "CodeProcessor", bound=Callable[[AI, BaseExecutionEnv, FilesDict], FilesDict]
 )
@@ -90,6 +97,7 @@ class CliAgent(BaseAgent):
         improve_fn: ImproveType = improve_fn,
         process_code_fn: CodeProcessor = execute_entrypoint,
         preprompts_holder: PrepromptsHolder = None,
+        docs: list[Document] = None,
     ):
         self.memory = memory
         self.execution_env = execution_env
@@ -98,6 +106,7 @@ class CliAgent(BaseAgent):
         self.process_code_fn = process_code_fn
         self.improve_fn = improve_fn
         self.preprompts_holder = preprompts_holder or PrepromptsHolder(PREPROMPTS_PATH)
+        self.docs = docs
 
     @classmethod
     def with_default_config(
@@ -110,6 +119,7 @@ class CliAgent(BaseAgent):
         process_code_fn: CodeProcessor = execute_entrypoint,
         preprompts_holder: PrepromptsHolder = None,
         diff_timeout=3,
+        docs: list[Document] = None,
     ):
         """
         Creates a new instance of CliAgent with default configurations for memory, execution environment,
@@ -147,9 +157,10 @@ class CliAgent(BaseAgent):
             process_code_fn=process_code_fn,
             improve_fn=improve_fn,
             preprompts_holder=preprompts_holder or PrepromptsHolder(PREPROMPTS_PATH),
+            docs=docs,
         )
 
-    def init(self, prompt: Prompt) -> FilesDict:
+    def init(self, prompt: Prompt, docs: list[Document]) -> FilesDict:
         """
         Generates a new piece of code using the AI and step bundle based on the provided prompt.
 
@@ -165,7 +176,7 @@ class CliAgent(BaseAgent):
         """
 
         files_dict = self.code_gen_fn(
-            self.ai, prompt, self.memory, self.preprompts_holder
+            self.ai, prompt, self.memory, self.preprompts_holder, self.docs
         )
         entrypoint = gen_entrypoint(
             self.ai, prompt, files_dict, self.memory, self.preprompts_holder

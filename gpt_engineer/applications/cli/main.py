@@ -62,6 +62,7 @@ from gpt_engineer.core.git import stage_uncommitted_to_git
 from gpt_engineer.core.preprompts_holder import PrepromptsHolder
 from gpt_engineer.core.prompt import Prompt
 from gpt_engineer.tools.custom_steps import clarified_gen, lite_gen, self_heal
+from gpt_engineer.core.documentation_loader import load_documents
 
 app = typer.Typer(
     context_settings={"help_option_names": ["-h", "--help"]}
@@ -284,7 +285,7 @@ def main(
         os.environ.get("MODEL_NAME", "gpt-4o"), "--model", "-m", help="model id string"
     ),
     temperature: float = typer.Option(
-        0.1,
+        0,
         "--temperature",
         "-t",
         help="Controls randomness: lower values for more focused, deterministic outputs",
@@ -378,6 +379,11 @@ def main(
         "--diff_timeout",
         help="Diff regexp timeout. Default: 3. Increase if regexp search timeouts.",
     ),
+    docs_url: str = typer.Option(
+        False,
+        "--docs_url",
+        help="URL to the documentation for the project.",
+    ),
 ):
     """
     The main entry point for the CLI tool that generates or improves a project.
@@ -422,6 +428,8 @@ def main(
         Run setup but to not call LLM or write any code. For testing purposes.
     sysinfo: bool
         Flag indicating whether to output system information for debugging.
+    docs_url: str
+        URL to the documentation for the project.
 
     Returns
     -------
@@ -499,6 +507,9 @@ def main(
 
     memory = DiskMemory(memory_path(project_path))
     memory.archive_logs()
+    docs = []
+    if docs_url:
+        docs = load_documents(docs_url)
 
     execution_env = DiskExecutionEnv()
     agent = CliAgent.with_default_config(
@@ -509,6 +520,7 @@ def main(
         improve_fn=improve_fn,
         process_code_fn=execution_fn,
         preprompts_holder=preprompts_holder,
+        docs=docs,
     )
 
     files = FileStore(project_path)
@@ -540,7 +552,7 @@ def main(
                     files_dict = files_dict_before
 
         else:
-            files_dict = agent.init(prompt)
+            files_dict = agent.init(prompt, docs)
             # collect user feedback if user consents
             config = (code_gen_fn.__name__, execution_fn.__name__)
             collect_and_send_human_review(prompt, model, temperature, config, memory)

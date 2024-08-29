@@ -39,9 +39,9 @@ import traceback
 from pathlib import Path
 from typing import List, MutableMapping, Union
 
-from langchain.schema import HumanMessage, SystemMessage
+from langchain.schema import HumanMessage, SystemMessage, Document
 from termcolor import colored
-
+from langchain.prompts import PromptTemplate
 from gpt_engineer.core.ai import AI
 from gpt_engineer.core.base_execution_env import BaseExecutionEnv
 from gpt_engineer.core.base_memory import BaseMemory
@@ -72,7 +72,9 @@ def curr_fn() -> str:
     return inspect.stack()[1].function
 
 
-def setup_sys_prompt(preprompts: MutableMapping[Union[str, Path], str]) -> str:
+def setup_sys_prompt(
+    preprompts: MutableMapping[Union[str, Path], str], code_blocks: list[Document]
+) -> str:
     """
     Sets up the system prompt for generating code.
 
@@ -86,8 +88,23 @@ def setup_sys_prompt(preprompts: MutableMapping[Union[str, Path], str]) -> str:
     str
         The system prompt message for the AI model.
     """
+
+    code = ""
+
+    for code_block in code_blocks:
+        code += code_block.page_content + "\n"
+
+    sample_template = PromptTemplate.from_template(
+        """
+        # Documentation and code snippets:
+{code}
+---
+"""
+    ).format(code=code)
+
     return (
-        preprompts["roadmap"]
+        sample_template
+        + preprompts["roadmap"]
         + preprompts["generate"].replace("FILE_FORMAT", preprompts["file_format"])
         + "\nUseful to know:\n"
         + preprompts["philosophy"]
@@ -119,7 +136,11 @@ def setup_sys_prompt_existing_code(
 
 
 def gen_code(
-    ai: AI, prompt: Prompt, memory: BaseMemory, preprompts_holder: PrepromptsHolder
+    ai: AI,
+    prompt: Prompt,
+    memory: BaseMemory,
+    preprompts_holder: PrepromptsHolder,
+    docs: list[Document] = None,
 ) -> FilesDict:
     """
     Generates code from a prompt using AI and returns the generated files.
@@ -142,7 +163,9 @@ def gen_code(
     """
     preprompts = preprompts_holder.get_preprompts()
     messages = ai.start(
-        setup_sys_prompt(preprompts), prompt.to_langchain_content(), step_name=curr_fn()
+        setup_sys_prompt(preprompts, docs),
+        prompt.to_langchain_content(),
+        step_name=curr_fn(),
     )
     chat = messages[-1].content.strip()
     memory.log(CODE_GEN_LOG_FILE, "\n\n".join(x.pretty_repr() for x in messages))
