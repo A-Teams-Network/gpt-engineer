@@ -28,7 +28,7 @@ from gpt_engineer.core.prompt import Prompt
 CodeGenType = TypeVar(
     "CodeGenType",
     bound=Callable[
-        [AI, str, BaseMemory, list[Document],
+        [AI, str, BaseMemory, list[Document]],
         FilesDict,
     ],
 )
