@@ -62,7 +62,7 @@ from gpt_engineer.core.git import stage_uncommitted_to_git
 from gpt_engineer.core.preprompts_holder import PrepromptsHolder
 from gpt_engineer.core.prompt import Prompt
 from gpt_engineer.tools.custom_steps import clarified_gen, lite_gen, self_heal
-from gpt_engineer.core.documentation_loader import load_documents
+from gpt_engineer.core.documentation_loader import prepare_docs
 
 app = typer.Typer(
     context_settings={"help_option_names": ["-h", "--help"]}
@@ -507,9 +507,7 @@ def main(
 
     memory = DiskMemory(memory_path(project_path))
     memory.archive_logs()
-    docs = []
-    if docs_url:
-        docs = load_documents(docs_url)
+    docs = prepare_docs(prompt.text)
 
     execution_env = DiskExecutionEnv()
     agent = CliAgent.with_default_config(

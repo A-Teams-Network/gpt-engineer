@@ -1,6 +1,7 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
+from langchain_core.prompts import PromptTemplate
 from langchain import hub
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnablePassthrough
@@ -10,6 +11,8 @@ from langchain_text_splitters import MarkdownHeaderTextSplitter
 from langchain_text_splitters import PythonCodeTextSplitter
 from langchain.docstore.document import Document
 import re
+from langchain.output_parsers import PydanticOutputParser
+from langchain_core.pydantic_v1 import BaseModel, Field, validator
 
 
 llm = ChatOpenAI(model="gpt-4o-mini")
@@ -17,6 +20,32 @@ llm = ChatOpenAI(model="gpt-4o-mini")
 
 # global vectorstore
 vectorstore = None
+
+
+class DocumentationLoader(BaseModel):
+    documentation_url: str = Field(
+        "A link (URL) to the documentation.",
+        example="https://docs.python.org/3/library/re.html",
+    )
+
+
+def get_documentation_url(query: str):
+    parser = PydanticOutputParser(pydantic_object=DocumentationLoader)
+    prompt = PromptTemplate.from_template(
+        template="""Analyze the provided text and extract the URL of the documentation.
+Respond with None if no URL is found.
+----------
+Text: {query}
+----------
+\n{format_instructions}
+""",
+        partial_variables={"format_instructions": parser.get_format_instructions()},
+    )
+    prompt_and_model = prompt | llm
+    output = prompt_and_model.invoke({"query": query})
+    result = parser.invoke(output)
+
+    return result.documentation_url
 
 
 def format_docs(docs):
@@ -49,6 +78,11 @@ def create_loader(url: str):
         raise ValueError("Unsupported URL scheme.")
 
 
+def prepare_docs(prompt: str):
+    docs_url = get_documentation_url(prompt)
+    return load_documents(docs_url)
+
+
 def load_documents(url: str):
     global vectorstore
 
@@ -63,7 +97,6 @@ def load_documents(url: str):
     splits = splitter.split_documents(code_blocks)
 
     return splits
-    # vectorstore = Chroma.from_documents(documents=splits, embedding=OpenAIEmbeddings())
 
 
 def retrieve_docs(query: str) -> list[Document]:
