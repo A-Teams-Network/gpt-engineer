@@ -7,6 +7,13 @@
 ![GitHub Release](https://img.shields.io/github/v/release/gpt-engineer-org/gpt-engineer)
 [![Twitter Follow](https://img.shields.io/twitter/follow/antonosika?style=social)](https://twitter.com/antonosika)
 
+The OG code genereation experimentation platform!
+
+If you are looking for the evolution that is an opinionated, managed service – check out gptengineer.app.
+
+If you are looking for a well maintained hackable CLI for – check out aider.
+
+
 gpt-engineer lets you:
 - Specify software in natural language
 - Sit back and watch as an AI writes and executes the code
@@ -65,6 +72,12 @@ Check the [Windows README](./WINDOWS_README.md) for Windows usage.
   - [APPS](https://github.com/hendrycks/apps)
   - [MBPP](https://github.com/google-research/google-research/tree/master/mbpp)
 
+The community has started work with different benchmarking initiatives, as described in [this Loom](https://www.loom.com/share/206805143fbb4302b5455a5329eaab17?sid=f689608f-8e49-44f7-b55f-4c81e9dc93e6) video.
+
+### Research
+Some of our community members have worked on different research briefs that could be taken further. See [this document](https://docs.google.com/document/d/1qmOj2DvdPc6syIAm8iISZFpfik26BYw7ZziD5c-9G0E/edit?usp=sharing) if you are interested.
+
+## Terms
 By running gpt-engineer, you agree to our [terms](https://github.com/gpt-engineer-org/gpt-engineer/blob/main/TERMS_OF_USE.md).
 
 
@@ -104,6 +117,10 @@ If you want to see our broader ambitions, check out the [roadmap](https://github
 to learn how you can [contribute](.github/CONTRIBUTING.md) to it.
 
 gpt-engineer is [governed](https://github.com/gpt-engineer-org/gpt-engineer/blob/main/GOVERNANCE.md) by a board of long-term contributors. If you contribute routinely and have an interest in shaping the future of gpt-engineer, you will be considered for the board.
+
+## Significant contributors
+<ul style="list-style-type: none; padding: 0; display: flex; flex-wrap: wrap;"> <li style="margin-right: 10px; margin-bottom: 10px;"> <a href="https://github.com/ATheorell"> <img src="https://avatars.githubusercontent.com/u/143704446?s=64&v=4" alt="@ATheorell" width="32" height="32" style="border-radius: 50%;"> @ATheorell </a> </li> <li style="margin-right: 10px; margin-bottom: 10px;"> <a href="https://github.com/similato87"> <img src="https://avatars.githubusercontent.com/u/71301573?s=64&v=4" alt="@similato87" width="32" height="32" style="border-radius: 50%;"> @similato87 </a> </li> <li style="margin-right: 10px; margin-bottom: 10px;"> <a href="https://github.com/TheoMcCabe"> <img src="https://avatars.githubusercontent.com/u/9841960?s=64&v=4" alt="@TheoMcCabe" width="32" height="32" style="border-radius: 50%;"> @TheoMcCabe </a> </li> <li style="margin-right: 10px; margin-bottom: 10px;"> <a href="https://github.com/captivus"> <img src="https://avatars.githubusercontent.com/u/366332?s=64&v=4" alt="@captivus" width="32" height="32" style="border-radius: 50%;"> @captivus </a> </li> </ul>
+
 
 ## Example
 
